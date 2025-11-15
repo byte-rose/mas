@@ -82,6 +82,20 @@ shellAgent := agent.NewAgent("ops", "Operations Assistant", model,
 )
 ```
 
+**Cybersecurity automation helpers:**
+
+```go
+import "github.com/voocel/mas/cyber"
+
+recon := cyber.NewNetworkReconAgent(model)
+defender := cyber.NewDefensiveCodeAgent(model)
+
+scanWorkflow := cyber.NewNetworkScanWorkflow(nil)
+auditWorkflow := cyber.NewStaticAuditWorkflow(nil)
+```
+
+Use the recon agent/workflow to map exposed services on target domains via the `network_scanner` tool, and the defensive agent/workflow to inspect source code with the `static_analysis` tool and suggested fixes.
+
 **Multi-agent collaboration:**
 
 ```go

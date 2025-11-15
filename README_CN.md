@@ -80,6 +80,15 @@ response, _ := agent.Execute(ctx, schema.Message{
 shellAgent := agent.NewAgent("ops", "Operations Assistant", model,
     agent.WithInteractiveShellTool(),
 )
+
+import "github.com/voocel/mas/cyber"
+
+// 网络测绘与代码审计智能体
+recon := cyber.NewNetworkReconAgent(model)
+defender := cyber.NewDefensiveCodeAgent(model)
+
+scanWorkflow := cyber.NewNetworkScanWorkflow(nil)
+auditWorkflow := cyber.NewStaticAuditWorkflow(nil)
 ```
 
 **多智能体协作：**

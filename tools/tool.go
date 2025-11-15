@@ -21,10 +21,10 @@ type Tool interface {
 
 // ToolSchema describes the tool JSON schema
 type ToolSchema struct {
-	Type        string                 `json:"type"`
-	Properties  map[string]any`json:"properties"`
-	Required    []string               `json:"required"`
-	Description string                 `json:"description"`
+	Type        string         `json:"type"`
+	Properties  map[string]any `json:"properties"`
+	Required    []string       `json:"required"`
+	Description string         `json:"description"`
 }
 
 // ToolResult represents the outcome of a tool
@@ -162,27 +162,27 @@ func NumberProperty(description string) map[string]any {
 }
 
 // BooleanProperty defines a boolean property
-func BooleanProperty(description string) map[string]any{
-	return map[string]any{
+func BooleanProperty(description string) map[string]interface{} {
+	return map[string]interface{}{
 		"type":        "boolean",
 		"description": description,
 	}
 }
 
 // ArrayProperty defines an array property
-func ArrayProperty(description string, itemType string) map[string]any} {
-	return map[string]any{
+func ArrayProperty(description string, itemType string) map[string]interface{} {
+	return map[string]interface{}{
 		"type":        "array",
 		"description": description,
-		"items": map[string]any{
+		"items": map[string]interface{}{
 			"type": itemType,
 		},
 	}
 }
 
 // ObjectProperty defines an object property
-func ObjectProperty(description string, properties map[string]any) map[string]any {
-	return map[string]any{
+func ObjectProperty(description string, properties map[string]interface{}) map[string]interface{} {
+	return map[string]interface{}{
 		"type":        "object",
 		"description": description,
 		"properties":  properties,
