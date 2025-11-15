@@ -13,7 +13,6 @@ import (
 // Executor coordinates tool execution
 type Executor struct {
 	registry *Registry
-	sandbox  *Sandbox
 	pool     *workerPool
 	config   *ExecutorConfig
 	mu       sync.RWMutex
@@ -23,7 +22,6 @@ type Executor struct {
 type ExecutorConfig struct {
 	MaxConcurrency int                `json:"max_concurrency"`
 	DefaultTimeout time.Duration      `json:"default_timeout"`
-	EnableSandbox  bool               `json:"enable_sandbox"`
 	EnableRetry    bool               `json:"enable_retry"`
 	RetryConfig    *utils.RetryConfig `json:"retry_config"`
 }
@@ -32,7 +30,6 @@ type ExecutorConfig struct {
 var DefaultExecutorConfig = &ExecutorConfig{
 	MaxConcurrency: 10,
 	DefaultTimeout: 30 * time.Second,
-	EnableSandbox:  true,
 	EnableRetry:    true,
 	RetryConfig: &utils.RetryConfig{
 		MaxAttempts: 3,
@@ -54,13 +51,8 @@ func NewExecutor(registry *Registry, config *ExecutorConfig) *Executor {
 
 	executor := &Executor{
 		registry: registry,
-		sandbox:  NewSandbox(nil, nil),
 		config:   config,
 		pool:     newWorkerPool(config.MaxConcurrency),
-	}
-
-	if !config.EnableSandbox {
-		executor.sandbox.Disable()
 	}
 
 	return executor
@@ -197,7 +189,7 @@ func (e *Executor) ExecuteAsync(ctx runtime.Context, toolCall schema.ToolCall) (
 	return resultChan, nil
 }
 
-// executeTool runs the tool with validation and sandboxing
+// executeTool runs the tool with validation
 func (e *Executor) executeTool(tool Tool, ctx runtime.Context, input json.RawMessage) (json.RawMessage, error) {
 	if baseTool, ok := tool.(*BaseTool); ok {
 		if err := baseTool.ValidateInput(input); err != nil {
@@ -205,30 +197,12 @@ func (e *Executor) executeTool(tool Tool, ctx runtime.Context, input json.RawMes
 		}
 	}
 
-	// Execute inside the sandbox
-	if e.sandbox.IsEnabled() {
-		return e.sandbox.Execute(tool, ctx, input)
-	}
-
-	// Execute directly
 	return tool.Execute(ctx, input)
 }
 
 // GetRegistry returns the registry
 func (e *Executor) GetRegistry() *Registry {
 	return e.registry
-}
-
-// GetSandbox returns the sandbox
-func (e *Executor) GetSandbox() *Sandbox {
-	return e.sandbox
-}
-
-// SetSandbox updates the sandbox
-func (e *Executor) SetSandbox(sandbox *Sandbox) {
-	e.mu.Lock()
-	defer e.mu.Unlock()
-	e.sandbox = sandbox
 }
 
 // ExecutionResult captures execution outcome

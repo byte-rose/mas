@@ -23,9 +23,9 @@ func NewTransferTool(targetAgent, description string) *TransferTool {
 
 	schema := tools.CreateToolSchema(
 		description,
-		map[string]interface{}{
+		map[string]any{
 			"reason": tools.StringProperty("Reason for the transfer"),
-			"priority": map[string]interface{}{
+			"priority": map[string]any{
 				"type":        "integer",
 				"description": "Priority level (1-10, higher is more urgent)",
 				"minimum":     1,
@@ -47,7 +47,7 @@ func NewTransferTool(targetAgent, description string) *TransferTool {
 
 func (t *TransferTool) Execute(ctx runtime.Context, input json.RawMessage) (json.RawMessage, error) {
 	// Parse input arguments
-	var args map[string]interface{}
+	var args map[string]any
 	if err := json.Unmarshal(input, &args); err != nil {
 		return nil, fmt.Errorf("failed to parse arguments: %w", err)
 	}
@@ -66,7 +66,7 @@ func (t *TransferTool) Execute(ctx runtime.Context, input json.RawMessage) (json
 	}
 
 	// Attach additional context
-	if contextData, ok := args["context"].(map[string]interface{}); ok {
+	if contextData, ok := args["context"].(map[string]any); ok {
 		for k, v := range contextData {
 			handoff.WithContext(k, v)
 		}
@@ -128,19 +128,19 @@ func GetCommonTransferTools() []tools.Tool {
 	}
 }
 
-// TransferToolBuilder creates transfer tools via a builder pattern
+// Create tools using the builder pattern, shove em in a struct
 type TransferToolBuilder struct {
 	targetAgent string
 	description string
 	required    []string
-	properties  map[string]interface{}
+	properties  map[string]any
 }
 
 // NewTransferToolBuilder creates a transfer tool builder
 func NewTransferToolBuilder(targetAgent string) *TransferToolBuilder {
 	return &TransferToolBuilder{
 		targetAgent: targetAgent,
-		properties:  make(map[string]interface{}),
+		properties:  make(map[string]any),
 	}
 }
 
@@ -151,7 +151,7 @@ func (b *TransferToolBuilder) WithDescription(description string) *TransferToolB
 }
 
 // WithProperty adds a custom property
-func (b *TransferToolBuilder) WithProperty(name string, property map[string]interface{}) *TransferToolBuilder {
+func (b *TransferToolBuilder) WithProperty(name string, property map[string]any) *TransferToolBuilder {
 	b.properties[name] = property
 	return b
 }
@@ -181,7 +181,7 @@ func (b *TransferToolBuilder) Build() tools.Tool {
 // CustomTransferTool extends TransferTool
 type CustomTransferTool struct {
 	*TransferTool
-	customProps map[string]interface{}
+	customProps map[string]any
 	required    []string
 }
 
@@ -195,7 +195,6 @@ func (c *CustomTransferTool) Schema() *tools.ToolSchema {
 		}
 	}
 
-	// Apply required parameters
 	if len(c.required) > 0 {
 		schema.Required = c.required
 	}
@@ -216,7 +215,7 @@ func ExtractHandoffFromToolCall(toolCall schema.ToolCall) (*schema.Handoff, erro
 	}
 
 	// Parse arguments
-	var args map[string]interface{}
+	var args map[string]any
 	if err := json.Unmarshal(toolCall.Args, &args); err != nil {
 		// On failure, fall back to a basic handoff
 		return schema.NewHandoff(target).WithContext("reason", "function_call"), nil
@@ -231,7 +230,7 @@ func ExtractHandoffFromToolCall(toolCall schema.ToolCall) (*schema.Handoff, erro
 	if priority, ok := args["priority"].(float64); ok {
 		handoff.WithPriority(int(priority))
 	}
-	if contextData, ok := args["context"].(map[string]interface{}); ok {
+	if contextData, ok := args["context"].(map[string]any); ok {
 		for k, v := range contextData {
 			handoff.WithContext(k, v)
 		}

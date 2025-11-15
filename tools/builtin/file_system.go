@@ -69,7 +69,7 @@ func NewFileSystemTool(allowedPaths []string, maxFileSize int64) *FileSystemTool
 
 	schema := tools.CreateToolSchema(
 		"Filesystem tool for reading, writing, listing, and deleting files",
-		map[string]interface{}{
+		map[string]any{
 			"action":    tools.StringProperty("Operation type: read, write, list, or delete"),
 			"path":      tools.StringProperty("File or directory path"),
 			"content":   tools.StringProperty("Content to write (write action only)"),
@@ -90,7 +90,7 @@ func NewFileSystemTool(allowedPaths []string, maxFileSize int64) *FileSystemTool
 
 // Execute performs the filesystem operation
 func (t *FileSystemTool) Execute(ctx runtime.Context, input json.RawMessage) (json.RawMessage, error) {
-	var params map[string]interface{}
+	var params map[string]any
 	if err := json.Unmarshal(input, &params); err != nil {
 		return nil, schema.NewToolError(t.Name(), "parse_input", err)
 	}
@@ -172,9 +172,8 @@ func (t *FileSystemTool) readFile(path string) (json.RawMessage, error) {
 	return json.Marshal(output)
 }
 
-// writeFile writes to a file
+// Writing to a file
 func (t *FileSystemTool) writeFile(path, content string, append bool) (json.RawMessage, error) {
-	// Check payload size
 	if int64(len(content)) > t.maxFileSize {
 		output := FileOutput{
 			Success: false,
@@ -183,7 +182,7 @@ func (t *FileSystemTool) writeFile(path, content string, append bool) (json.RawM
 		return json.Marshal(output)
 	}
 
-	// Ensure the directory exists
+	// Perform some directory validation checks
 	dir := filepath.Dir(path)
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		output := FileOutput{

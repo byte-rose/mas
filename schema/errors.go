@@ -13,11 +13,10 @@ var (
 	ErrAgentExecutionFailed = errors.New("agent execution failed")
 
 	// Tool related errors
-	ErrToolNotFound         = errors.New("tool not found")
-	ErrToolAlreadyExists    = errors.New("tool already exists")
-	ErrToolExecutionFailed  = errors.New("tool execution failed")
-	ErrToolTimeout          = errors.New("tool execution timeout")
-	ErrToolSandboxViolation = errors.New("tool sandbox violation")
+	ErrToolNotFound        = errors.New("tool not found")
+	ErrToolAlreadyExists   = errors.New("tool already exists")
+	ErrToolExecutionFailed = errors.New("tool execution failed")
+	ErrToolTimeout         = errors.New("tool execution timeout")
 
 	// LLM related errors
 	ErrModelNotSupported = errors.New("model not supported")

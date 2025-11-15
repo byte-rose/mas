@@ -1,6 +1,9 @@
 package agent
 
-import "github.com/voocel/mas/tools"
+import (
+	"github.com/voocel/mas/tools"
+	"github.com/voocel/mas/tools/builtin"
+)
 
 // Option configures an agent when constructing it.
 type Option func(*AgentConfig)
@@ -16,6 +19,14 @@ func WithSystemPrompt(prompt string) Option {
 func WithTools(toolList ...tools.Tool) Option {
 	return func(cfg *AgentConfig) {
 		cfg.Tools = append(cfg.Tools, toolList...)
+	}
+}
+
+// WithInteractiveShellTool registers the PTY-based interactive shell tool,
+// allowing the agent to execute terminal commands via a pseudo-terminal.
+func WithInteractiveShellTool() Option {
+	return func(cfg *AgentConfig) {
+		cfg.Tools = append(cfg.Tools, builtin.NewPtyTool())
 	}
 }
 

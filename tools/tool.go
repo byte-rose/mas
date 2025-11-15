@@ -22,7 +22,7 @@ type Tool interface {
 // ToolSchema describes the tool JSON schema
 type ToolSchema struct {
 	Type        string                 `json:"type"`
-	Properties  map[string]interface{} `json:"properties"`
+	Properties  map[string]any`json:"properties"`
 	Required    []string               `json:"required"`
 	Description string                 `json:"description"`
 }
@@ -38,14 +38,12 @@ type ToolResult struct {
 type ToolConfig struct {
 	Timeout    time.Duration `json:"timeout"`
 	MaxRetries int           `json:"max_retries"`
-	Sandbox    bool          `json:"sandbox"`
 }
 
 // DefaultToolConfig provides baseline configuration
 var DefaultToolConfig = &ToolConfig{
 	Timeout:    30 * time.Second,
 	MaxRetries: 3,
-	Sandbox:    true,
 }
 
 // BaseTool provides shared tool functionality
@@ -122,7 +120,7 @@ func (t *BaseTool) ValidateInput(input json.RawMessage) error {
 	}
 
 	// Basic JSON format validation
-	var data map[string]interface{}
+	var data map[string]any
 	if err := json.Unmarshal(input, &data); err != nil {
 		return schema.NewValidationError("input", string(input), "invalid JSON format")
 	}
@@ -138,7 +136,7 @@ func (t *BaseTool) ValidateInput(input json.RawMessage) error {
 }
 
 // CreateToolSchema builds a schema definition
-func CreateToolSchema(description string, properties map[string]interface{}, required []string) *ToolSchema {
+func CreateToolSchema(description string, properties map[string]any, required []string) *ToolSchema {
 	return &ToolSchema{
 		Type:        "object",
 		Description: description,
@@ -148,43 +146,43 @@ func CreateToolSchema(description string, properties map[string]interface{}, req
 }
 
 // StringProperty defines a string property
-func StringProperty(description string) map[string]interface{} {
-	return map[string]interface{}{
+func StringProperty(description string) map[string]any {
+	return map[string]any{
 		"type":        "string",
 		"description": description,
 	}
 }
 
 // NumberProperty defines a numeric property
-func NumberProperty(description string) map[string]interface{} {
-	return map[string]interface{}{
+func NumberProperty(description string) map[string]any {
+	return map[string]any{
 		"type":        "number",
 		"description": description,
 	}
 }
 
 // BooleanProperty defines a boolean property
-func BooleanProperty(description string) map[string]interface{} {
-	return map[string]interface{}{
+func BooleanProperty(description string) map[string]any{
+	return map[string]any{
 		"type":        "boolean",
 		"description": description,
 	}
 }
 
 // ArrayProperty defines an array property
-func ArrayProperty(description string, itemType string) map[string]interface{} {
-	return map[string]interface{}{
+func ArrayProperty(description string, itemType string) map[string]any} {
+	return map[string]any{
 		"type":        "array",
 		"description": description,
-		"items": map[string]interface{}{
+		"items": map[string]any{
 			"type": itemType,
 		},
 	}
 }
 
 // ObjectProperty defines an object property
-func ObjectProperty(description string, properties map[string]interface{}) map[string]interface{} {
-	return map[string]interface{}{
+func ObjectProperty(description string, properties map[string]any) map[string]any {
+	return map[string]any{
 		"type":        "object",
 		"description": description,
 		"properties":  properties,
@@ -205,13 +203,6 @@ func WithMaxRetries(maxRetries int) func(*ToolConfig) {
 	}
 }
 
-// WithSandbox toggles sandboxing
-func WithSandbox(sandbox bool) func(*ToolConfig) {
-	return func(config *ToolConfig) {
-		config.Sandbox = sandbox
-	}
-}
-
 // NewCalculator provides a convenience constructor
 func NewCalculator() Tool {
 	// Importing the builtin package here would introduce a cycle,
@@ -219,7 +210,6 @@ func NewCalculator() Tool {
 	// Return nil for now; builtin holds the concrete implementation
 	return nil
 }
-
 
 // ToolFunction Define the signature of the utility function
 // The function must be: func(ctx runtime.Context, ...args) (string, error)

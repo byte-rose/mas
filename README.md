@@ -75,6 +75,11 @@ response, _ := agent.Execute(ctx, schema.Message{
     Role:    schema.RoleUser,
     Content: "Calculate 15 * 8 + 7",
 })
+
+// Enable interactive PTY execution (e.g. Kali shell workflows)
+shellAgent := agent.NewAgent("ops", "Operations Assistant", model,
+    agent.WithInteractiveShellTool(),
+)
 ```
 
 **Multi-agent collaboration:**

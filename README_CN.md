@@ -75,6 +75,11 @@ response, _ := agent.Execute(ctx, schema.Message{
     Role:    schema.RoleUser,
     Content: "计算 15 * 8 + 7",
 })
+
+// 为需要交互式终端的场景启用 PTY 工具（例如 Kali 环境）
+shellAgent := agent.NewAgent("ops", "Operations Assistant", model,
+    agent.WithInteractiveShellTool(),
+)
 ```
 
 **多智能体协作：**

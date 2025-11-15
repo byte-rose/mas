@@ -53,7 +53,7 @@ type SearchOutput struct {
 func NewWebSearchTool(apiKey string) *WebSearchTool {
 	schema := tools.CreateToolSchema(
 		"Web search tool for retrieving information from the internet",
-		map[string]interface{}{
+		map[string]any{
 			"query":       tools.StringProperty("Search query"),
 			"max_results": tools.NumberProperty("Maximum number of results (default 10)"),
 			"language":    tools.StringProperty("Language code (e.g., zh-CN, en)"),
@@ -146,7 +146,7 @@ func (t *WebSearchTool) searchDuckDuckGo(input SearchInput) (json.RawMessage, er
 	}
 
 	// Parse the DuckDuckGo response
-	var ddgResponse map[string]interface{}
+	var ddgResponse map[string]any
 	if err := json.Unmarshal(body, &ddgResponse); err != nil {
 		output := SearchOutput{
 			Success: false,
@@ -222,7 +222,7 @@ func (t *WebSearchTool) searchGoogle(input SearchInput) (json.RawMessage, error)
 	}
 
 	// Parse the Google response
-	var googleResponse map[string]interface{}
+	var googleResponse map[string]any
 	if err := json.Unmarshal(body, &googleResponse); err != nil {
 		output := SearchOutput{
 			Success: false,
@@ -246,7 +246,7 @@ func (t *WebSearchTool) searchGoogle(input SearchInput) (json.RawMessage, error)
 }
 
 // parseDuckDuckGoResponse parses the DuckDuckGo response
-func (t *WebSearchTool) parseDuckDuckGoResponse(response map[string]interface{}, maxResults int) []SearchResult {
+func (t *WebSearchTool) parseDuckDuckGoResponse(response map[string]any, maxResults int) []SearchResult {
 	var results []SearchResult
 
 	// Parse the Abstract field
@@ -262,9 +262,9 @@ func (t *WebSearchTool) parseDuckDuckGoResponse(response map[string]interface{},
 	}
 
 	// Parse RelatedTopics
-	if relatedTopics, ok := response["RelatedTopics"].([]interface{}); ok {
+	if relatedTopics, ok := response["RelatedTopics"].([]any); ok {
 		for _, topic := range relatedTopics {
-			if topicMap, ok := topic.(map[string]interface{}); ok {
+			if topicMap, ok := topic.(map[string]any); ok {
 				if text, ok := topicMap["Text"].(string); ok && text != "" {
 					if firstURL, ok := topicMap["FirstURL"].(string); ok {
 						results = append(results, SearchResult{
@@ -286,12 +286,12 @@ func (t *WebSearchTool) parseDuckDuckGoResponse(response map[string]interface{},
 }
 
 // parseGoogleResponse parses the Google response
-func (t *WebSearchTool) parseGoogleResponse(response map[string]interface{}) []SearchResult {
+func (t *WebSearchTool) parseGoogleResponse(response map[string]any) []SearchResult {
 	var results []SearchResult
 
-	if items, ok := response["items"].([]interface{}); ok {
+	if items, ok := response["items"].([]any); ok {
 		for _, item := range items {
-			if itemMap, ok := item.(map[string]interface{}); ok {
+			if itemMap, ok := item.(map[string]any); ok {
 				title, _ := itemMap["title"].(string)
 				link, _ := itemMap["link"].(string)
 				snippet, _ := itemMap["snippet"].(string)
